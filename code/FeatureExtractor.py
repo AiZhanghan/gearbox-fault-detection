@@ -125,9 +125,8 @@ if __name__ == "__main__":
 
     base_path = r"D:\Workspace\Data\牛家岭"
     wind_turbines = [
-        "1",
-        "2",
-        "3",
+        "23",
+        "24",
     ]
     target_path = r"D:\Workspace\python_workspace\gearbox-fault-detection\local\feature\niu_jia_ling"
 
