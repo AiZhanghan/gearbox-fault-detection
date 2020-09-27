@@ -48,10 +48,14 @@ def get_rotating_speed(csv_path, save_path):
         sub_data = data.iloc[start: end]
         sub_data = sub_data.drop(1, axis=1)
         sub_data = sub_data.sort_index()
+        
+        sub_data.index = pd.to_datetime(sub_data.index, format="%Y%m%d%H%M%S")
+        sub_data.index.name = "date"
+        sub_data.columns = ["speed"]
+
         if not os.path.exists(os.path.join(target_path, wind_turbine)):
             os.makedirs(os.path.join(target_path, wind_turbine))
-        sub_data.to_csv(os.path.join(target_path, wind_turbine, key + "_ratating_spend.csv"),
-            header=0)
+        sub_data.to_csv(os.path.join(target_path, wind_turbine, key + ".csv"))
         start = end
 
 
