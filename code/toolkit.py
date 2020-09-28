@@ -32,5 +32,9 @@ def get_filepath_shotname_extension(filename):
 
 
 def print_shape(**kwargs):
+    """
+    Args:
+        kwargs: dict
+    """
     for key, value in kwargs.items():
         print("%s.shape: %s" % (key, value.shape))
