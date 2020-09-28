@@ -29,3 +29,8 @@ def get_filepath_shotname_extension(filename):
     filepath, tempfilename = os.path.split(filename)
     shotname, extension = os.path.splitext(tempfilename)
     return filepath, shotname, extension
+
+
+def print_shape(**kwargs):
+    for key, value in kwargs.items():
+        print("%s.shape: %s" % (key, value.shape))
