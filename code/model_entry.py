@@ -1,6 +1,7 @@
 import os
 import pickle
 import numpy as np
+import pandas as pd
 from sklearn.preprocessing import MinMaxScaler
 from pyod.models.auto_encoder import AutoEncoder
 from pyod.models.combination import average
@@ -12,8 +13,7 @@ import toolkit
 class OutlierDetector:
     """
     Attr:
-        decision_scores: np.array, 训练集异常值
-        threshold: float
+        decision_scores: pd.DataFrame, 训练集异常值
     
     Instance API:
         fit(X): 拟合模型
@@ -28,7 +28,7 @@ class OutlierDetector:
         """Fit detector
 
         Args:
-            X: np.array
+            X: pd.DataFrame
         """
         self.detectors = {
             "auto_encoder": AutoEncoder(
@@ -38,14 +38,14 @@ class OutlierDetector:
                 verbose=0,
             ),
         }
-        print("train_data.shape:", X.shape)
+        # print("train_data.shape:", X.shape)
         # 数据预处理
         # 标准化
         X_train_norm, self.data_norm_scalar = standardizer(X, 
-                                                           keep_scalar=True)
+            keep_scalar=True)
         # 归一化
         X_train_unif, self.data_unif_scalar = minmaxizer(X_train_norm, 
-                                                         keep_scalar=True)
+            keep_scalar=True)
         
         train_scores = np.zeros([X.shape[0], len(self.detectors)])
 
@@ -55,18 +55,19 @@ class OutlierDetector:
             train_scores[:, i] = clf.decision_scores_
         
         train_scores_norm, self.score_scalar = standardizer(train_scores, 
-                                                       keep_scalar=True)
+            keep_scalar=True)
 
-        self.decision_scores = average(train_scores_norm)
+        self.decision_scores = pd.DataFrame(average(train_scores_norm),
+            index=X.index)
     
     def decision_function(self, X):
         """Predict raw anomaly score of X using the fitted detector.
 
         Args:
-            X: np.array
+            X: pd.DataFrame
         
         Return:
-            anomaly_scores: np.array
+            anomaly_scores: pd.DataFrame
         """
         # 数据预处理
         X_test_norm = self.data_norm_scalar.transform(X)
@@ -78,7 +79,8 @@ class OutlierDetector:
                 self.detectors[clf_name].decision_function(X_test_unif)
         
         test_scores_norm = self.score_scalar.transform(test_scores)
-        anomaly_scores = average(test_scores_norm)
+        anomaly_scores = pd.DataFrame(average(test_scores_norm), 
+            index=X.index)
 
         return anomaly_scores
     
