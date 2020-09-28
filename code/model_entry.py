@@ -32,6 +32,7 @@ class OutlierDetector:
         """
         self.detectors = {
             "auto_encoder": AutoEncoder(
+                hidden_neurons=[16, 8, 8, 16],
                 epochs=256,
                 validation_size=0,
                 preprocessing=False,
