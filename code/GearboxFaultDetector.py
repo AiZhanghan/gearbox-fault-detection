@@ -31,6 +31,47 @@ class GearboxFaultDetector:
             feature: pd.DataFrame
             speed: pd.DataFrame
         """
+        low_feature, mid_feature, high_feature = self._split_data(feature, 
+            speed)
+        # fit
+        self.low_outlier_detector.fit(low_feature)
+        self.mid_outlier_detector.fit(mid_feature)
+        self.high_outlier_detector.fit(high_feature)
+        # 整合decision_scores
+        self.decision_scores = pd.concat([
+            self.low_outlier_detector.decision_scores,
+            self.mid_outlier_detector.decision_scores, 
+            self.high_outlier_detector.decision_scores]).sort_index()
+        self.decision_scores.columns = ["score"]
+    
+    def decision_function(self, feature, speed):
+        """
+        Args:
+            feature: pd.DataFrame
+            speed: pd.DataFrame
+        
+        Return:
+            pd.DataFrame
+        """
+        low_feature, mid_feature, high_feature = self._split_data(feature, 
+            speed)
+        # predict
+        anomaly_scores = pd.concat([
+            self.low_outlier_detector.decision_function(low_feature),
+            self.mid_outlier_detector.decision_function(mid_feature),
+            self.high_outlier_detector.decision_function(high_feature)])\
+            .sort_index()
+        return anomaly_scores
+
+    def _split_data(self, feature, speed):
+        """
+        Args:
+            feature: pd.DataFrame
+            speed: pd.DataFrame
+        
+        Return:
+            tuple(pd.DataFrame)
+        """
         # 剔除小于low_speed的数据
         feature = feature[speed.speed >= self.low_speed]
         speed = speed[speed.speed >= self.low_speed]
@@ -44,13 +85,8 @@ class GearboxFaultDetector:
             speed.query("speed >= %d" % self.high_speed).index)]
         toolkit.print_shape(feature=feature, low_feature=low_feature,
             mid_feature=mid_feature, high_feature=high_feature)
-        # fit
-        self.low_outlier_detector.fit(low_feature)
-        self.mid_outlier_detector.fit(mid_feature)
-        self.high_outlier_detector.fit(high_feature)
-        # 整合decision_scores
-        self.decision_scores = pd.concat([
-            self.low_outlier_detector.decision_scores,
-            self.mid_outlier_detector.decision_scores, 
-            self.high_outlier_detector.decision_scores]).sort_index()
-        
+        return low_feature, mid_feature, high_feature
+
+
+if __name__ == "__main__":
+    model = GearboxFaultDetector()

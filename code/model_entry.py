@@ -32,7 +32,7 @@ class OutlierDetector:
         """
         self.detectors = {
             "auto_encoder": AutoEncoder(
-                epochs=128,
+                epochs=256,
                 validation_size=0,
                 preprocessing=False,
                 verbose=0,
