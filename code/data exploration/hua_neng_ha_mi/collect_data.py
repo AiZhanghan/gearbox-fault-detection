@@ -104,7 +104,7 @@ def collect_data(files, wind_turbine, source_path, target_path):
         if not os.path.exists(temp_path):
             os.makedirs(temp_path)
         data.to_csv(os.path.join(temp_path, dic[sensor]) + ".csv")
-        print("%.2f" % time.time() - start)
+        print("%.2f" % (time.time() - start))
 
 
 def main():
