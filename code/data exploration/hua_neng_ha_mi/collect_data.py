@@ -121,11 +121,14 @@ def collect_speed(files, wind_turbine, source_path, target_path):
         df = to_DataFrame(files[sensor])
         speed = df.apply(lambda x: x[0].split("_")[6][: -3], axis=1)
         speed.index = df.index
+        # 命名
+        speed.index.name = "date"
+        speed.columns = ["speed"]
         # 保存csv文件
         temp_path = os.path.join(target_path, wind_turbine)
         if not os.path.exists(temp_path):
             os.makedirs(temp_path)
-        speed.to_csv(os.path.join(temp_path, dic[sensor]) + ".csv", header=0)
+        speed.to_csv(os.path.join(temp_path, dic[sensor]) + ".csv")
 
 
 def to_DataFrame(files):
