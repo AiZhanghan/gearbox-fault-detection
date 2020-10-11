@@ -1,6 +1,7 @@
 import os
 import time
 from functools import wraps
+from sklearn.decomposition import PCA
 
 
 def timer(func):
@@ -38,3 +39,16 @@ def print_shape(**kwargs):
     """
     for key, value in kwargs.items():
         print("%s.shape: %s" % (key, value.shape))
+
+
+def tuning_pca(feature, n_components):
+    """
+    Args:
+        feature: df.DataFrame
+        n_components: float
+    """
+    pca = PCA(n_components=n_components)
+    pca.fit(feature)
+    print("pca.components_.shape: %s, sum(pca.explained_variance_ratio_: %.4f"
+        % (pca.components_.shape, sum(pca.explained_variance_ratio_)))
+        

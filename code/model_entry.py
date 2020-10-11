@@ -84,29 +84,29 @@ class OutlierDetector:
 
         return anomaly_scores
     
-    def save(self, path):
-        """
-        Args:
-            path: str
-        """
-        base_path, _, _ = toolkit.get_filepath_shotname_extension(path)
-        if not os.path.exists(base_path):
-            os.makedirs(base_path)
-        with open(path, "wb") as f:
-            pickle.dump(self, f)
+    # def save(self, path):
+    #     """
+    #     Args:
+    #         path: str
+    #     """
+    #     base_path, _, _ = toolkit.get_filepath_shotname_extension(path)
+    #     if not os.path.exists(base_path):
+    #         os.makedirs(base_path)
+    #     with open(path, "wb") as f:
+    #         pickle.dump(self, f)
 
-    @staticmethod
-    def load(path):
-        """
-        Args:
-            path: str
+    # @staticmethod
+    # def load(path):
+    #     """
+    #     Args:
+    #         path: str
         
-        Return:
-            Model
-        """
-        with open(path, "rb") as f:
-            model = pickle.load(f)
-        return model
+    #     Return:
+    #         Model
+    #     """
+    #     with open(path, "rb") as f:
+    #         model = pickle.load(f)
+    #     return model
 
 
 def minmaxizer(X, X_t=None, keep_scalar=False):
