@@ -49,6 +49,5 @@ def tuning_pca(feature, n_components):
     """
     pca = PCA(n_components=n_components)
     pca.fit(feature)
-    print("pca.components_.shape: %s, sum(pca.explained_variance_ratio_: %.4f"
+    print("pca.components_.shape: %s, sum(pca.explained_variance_ratio_): %.4f"
         % (pca.components_.shape, sum(pca.explained_variance_ratio_)))
-        
