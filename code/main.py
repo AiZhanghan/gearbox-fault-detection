@@ -39,9 +39,7 @@ def main():
             SPEED_THRESHOLD = 250 if wind_farm != "san_tang_hu" else 3
             feature = feature[speed.speed >= SPEED_THRESHOLD]
             speed = speed[speed.speed >= SPEED_THRESHOLD]
-            # tuning pca
-            toolkit.tuning_pca(feature, 8)
-            toolkit.tuning_pca(feature, 0.99)
+            
 
 
 if __name__ == "__main__":
