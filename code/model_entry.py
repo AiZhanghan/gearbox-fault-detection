@@ -14,6 +14,8 @@ class OutlierDetector:
     """
     Attr:
         decision_scores: pd.DataFrame, 训练集异常值
+        threshold: float, 阈值
+        label: pd.DataFrame, 训练集预测标签
     
     Instance API:
         fit(X): 拟合模型
@@ -24,8 +26,9 @@ class OutlierDetector:
         save(path)
     """
 
-    def fit(self, X):
-        """Fit detector
+    def fit(self, X, contamination=0.1):
+        """
+        Fit detector
 
         Args:
             X: pd.DataFrame
@@ -36,6 +39,7 @@ class OutlierDetector:
                 validation_size=0,
                 preprocessing=False,
                 verbose=0,
+                contamination=contamination,
             ),
         }
         # print("train_data.shape:", X.shape)
@@ -48,21 +52,27 @@ class OutlierDetector:
             keep_scalar=True)
         
         train_scores = np.zeros([X.shape[0], len(self.detectors)])
-
+        thresholds = np.zeros([1, len(self.detectors)])
+        # 训练
         for i, clf_name in enumerate(self.detectors):
             clf = self.detectors[clf_name]
             clf.fit(X_train_unif)
             train_scores[:, i] = clf.decision_scores_
-        
+            thresholds[:, i] = clf.threshold_
+        # 训练集异常程度及阈值
         train_scores_norm, self.score_scalar = standardizer(train_scores, 
             keep_scalar=True)
+        thresholds_norm = self.score_scalar.transform(thresholds)
 
         self.decision_scores = pd.DataFrame(average(train_scores_norm),
             index=X.index)
         self.decision_scores.columns = ["score"]
-    
+        self.threshold = average(thresholds_norm)[0]
+        self.label = self.get_label(self.decision_scores)
+        
     def decision_function(self, X):
-        """Predict raw anomaly score of X using the fitted detector.
+        """
+        Predict raw anomaly score of X using the fitted detector.
 
         Args:
             X: pd.DataFrame
@@ -76,8 +86,8 @@ class OutlierDetector:
 
         test_scores = np.zeros([X_test_unif.shape[0], len(self.detectors)])
         for i, clf_name in enumerate(self.detectors):
-            test_scores[:, i] = \
-                self.detectors[clf_name].decision_function(X_test_unif)
+            test_scores[:, i] = self.detectors[clf_name].\
+                decision_function(X_test_unif)
         
         test_scores_norm = self.score_scalar.transform(test_scores)
         anomaly_scores = pd.DataFrame(average(test_scores_norm), 
@@ -85,6 +95,32 @@ class OutlierDetector:
         anomaly_scores.columns = ["score"]
 
         return anomaly_scores
+
+    def predict(self, X):
+        """
+
+        Args:
+            X: pd.DataFrame
+        
+        Return:
+            pd.DataFrame
+        """
+        anomaly_scores = self.decision_function(X)
+        # 连续三次超过阈值
+        return self.get_label(anomaly_scores)
+    
+    def get_label(anomaly_scores):
+        """
+        Args:
+            anomaly_scores: pd.DataFrame
+        
+        Return:
+            pd.DataFrame
+        """
+        label = (anomaly_scores >= self.threshold).astype(int).rolling(3).\
+            sum() == 3
+        label.column = ["label"]
+        return label
     
     # def save(self, path):
     #     """
