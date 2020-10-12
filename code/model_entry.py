@@ -109,7 +109,7 @@ class OutlierDetector:
         # 连续三次超过阈值
         return self.get_label(anomaly_scores)
     
-    def get_label(anomaly_scores):
+    def get_label(self, anomaly_scores):
         """
         Args:
             anomaly_scores: pd.DataFrame
@@ -119,7 +119,7 @@ class OutlierDetector:
         """
         label = (anomaly_scores >= self.threshold).astype(int).rolling(3).\
             sum() == 3
-        label.column = ["label"]
+        label.rename(columns={"score": "label"}, inplace=True)
         return label
     
     # def save(self, path):
