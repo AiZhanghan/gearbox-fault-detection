@@ -59,6 +59,7 @@ class OutlierDetector:
 
         self.decision_scores = pd.DataFrame(average(train_scores_norm),
             index=X.index)
+        self.decision_scores.columns = ["score"]
     
     def decision_function(self, X):
         """Predict raw anomaly score of X using the fitted detector.
@@ -81,6 +82,7 @@ class OutlierDetector:
         test_scores_norm = self.score_scalar.transform(test_scores)
         anomaly_scores = pd.DataFrame(average(test_scores_norm), 
             index=X.index)
+        anomaly_scores.columns = ["score"]
 
         return anomaly_scores
     

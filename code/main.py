@@ -6,6 +6,7 @@
 import os
 
 import toolkit
+import visualization
 from Reader import Reader
 from model_entry import OutlierDetector
 
@@ -151,8 +152,14 @@ TEST = {
 def main():
     feature_path = r"D:/Workspace/python_workspace/gearbox-fault-detection/local/feature/"
     speed_path = r"D:/Workspace/python_workspace/gearbox-fault-detection/local/rotating_speed"
+    result_path = r"D:/Workspace/python_workspace/gearbox-fault-detection/code/result"
     # 风场
-    wind_farms = os.listdir(feature_path)
+    # wind_farms = os.listdir(feature_path)
+    wind_farms = [
+        # "li_niu_ping",
+        # "niu_jia_ling",
+        "san_tang_hu",
+    ]
     # 传感器
     sensors = [
         "gearbox",
@@ -167,8 +174,8 @@ def main():
         for wind_turbine in wind_turbines:
             print("wind_turbine: %s" % wind_turbine)
             # 读取数据
-            feature = reader.read_feature(os.path.join(feature_path, wind_farm,
-                wind_turbine), sensors)
+            feature = reader.read_feature(os.path.join(feature_path, 
+                wind_farm, wind_turbine), sensors)
             speed = reader.read_speed(os.path.join(speed_path, wind_farm,
                 wind_turbine), sensors)
             if wind_farm == "li_niu_ping":
@@ -185,11 +192,24 @@ def main():
             test_start, test_end = TEST[wind_farm][wind_turbine]
             feature_test = feature[test_start: test_end]
 
-            toolkit.print_shape(feature_train=feature_train, feature_test=feature_test)
+            toolkit.print_shape(feature_train=feature_train,
+                feature_test=feature_test)
 
             feature_test = feature
-
+            # 训练
             detector = OutlierDetector()
+            detector.fit(feature_train)
+            anomaly_scores_train = detector.decision_scores
+            # 测试
+            anomaly_scores_test = detector.decision_function(feature_test)
+            # 可视化结果
+            fig, _ = visualization.plot_line(anomaly_scores_train, 
+                anomaly_scores_test, wind_farm, wind_turbine)
+            
+            temp = os.path.join(result_path, wind_farm)
+            if not os.path.exists(temp):
+                os.makedirs(temp)
+            fig.savefig(os.path.join(temp, wind_turbine + "line.png"))
 
 
 if __name__ == "__main__":
