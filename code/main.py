@@ -178,10 +178,11 @@ def main():
                 wind_farm, wind_turbine), sensors)
             speed = reader.read_speed(os.path.join(speed_path, wind_farm,
                 wind_turbine), sensors)
+            # 只有犁牛坪需要对齐feature speed
             if wind_farm == "li_niu_ping":
                 feature = feature.loc[speed.index]
             toolkit.print_shape(feature=feature, speed=speed)
-            # 根据转速初步过滤异常值(极值分析)
+            # 根据转速初步过滤异常值(极值分析), 三塘湖转速单位不同
             SPEED_THRESHOLD = 250 if wind_farm != "san_tang_hu" else 3
             feature = feature[speed.speed >= SPEED_THRESHOLD]
             speed = speed[speed.speed >= SPEED_THRESHOLD]
@@ -194,7 +195,7 @@ def main():
 
             toolkit.print_shape(feature_train=feature_train,
                 feature_test=feature_test)
-
+            # TODO: 三塘湖需要调整
             feature_test = feature
             # 训练
             detector = OutlierDetector()
@@ -204,7 +205,8 @@ def main():
             anomaly_scores_test = detector.decision_function(feature_test)
             # 可视化结果
             fig, _ = visualization.plot_line(anomaly_scores_train, 
-                anomaly_scores_test, wind_farm, wind_turbine)
+                anomaly_scores_test, detector.threshold, wind_farm, 
+                wind_turbine)
             
             temp = os.path.join(result_path, wind_farm)
             if not os.path.exists(temp):
