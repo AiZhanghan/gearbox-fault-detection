@@ -51,3 +51,20 @@ def tuning_pca(feature, n_components):
     pca.fit(feature)
     print("pca.components_.shape: %s, sum(pca.explained_variance_ratio_): %.4f"
         % (pca.components_.shape, sum(pca.explained_variance_ratio_)))
+
+
+def precision_recall_f1(TP, FP, FN):
+    """
+    Args:
+        TP: int
+        FP: int
+        FN: int
+    """
+    P = TP / (TP + FP)
+    R = TP / (TP + FN)
+    F1 = (2 * P * R) / (P + R)
+    print("P: %.4f, R: %.4f, F1: %.4f" % (P, R, F1))
+
+
+if __name__ == "__main__":
+    precision_recall_f1(TP=1, FP=2, FN=0)

@@ -4,6 +4,7 @@
 
 
 import os
+import pandas as pd
 
 import toolkit
 import visualization
@@ -156,9 +157,9 @@ def main():
     # 风场
     # wind_farms = os.listdir(feature_path)
     wind_farms = [
-        # "li_niu_ping",
+        "li_niu_ping",
         # "niu_jia_ling",
-        "san_tang_hu",
+        # "san_tang_hu",
     ]
     # 传感器
     sensors = [
@@ -195,23 +196,30 @@ def main():
 
             toolkit.print_shape(feature_train=feature_train,
                 feature_test=feature_test)
-            # TODO: 三塘湖需要调整
-            feature_test = feature
+            
+            feature_test = pd.concat([feature_train, feature_test]).sort_index()
             # 训练
             detector = OutlierDetector()
-            detector.fit(feature_train)
+            detector.fit(feature_train, contamination=0.01)
             anomaly_scores_train = detector.decision_scores
+            label_train = detector.label
             # 测试
             anomaly_scores_test = detector.decision_function(feature_test)
+            label_test = detector.predict(feature_test)
+
             # 可视化结果
-            fig, _ = visualization.plot_line(anomaly_scores_train, 
-                anomaly_scores_test, detector.threshold, wind_farm, 
+            fig, _ = visualization.plot_line(anomaly_scores_train, label_train,
+                anomaly_scores_test, label_test, detector.threshold, wind_farm, 
                 wind_turbine)
             
             temp = os.path.join(result_path, wind_farm)
             if not os.path.exists(temp):
                 os.makedirs(temp)
-            fig.savefig(os.path.join(temp, wind_turbine + "line.png"))
+            fig.savefig(os.path.join(temp, wind_turbine + ".png"))
+            # 保存报警记录
+            record = anomaly_scores_test[label_test.label]
+            if len(record) > 0:
+                record.to_csv(os.path.join(temp, wind_turbine + ".csv"))
 
 
 if __name__ == "__main__":

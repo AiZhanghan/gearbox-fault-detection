@@ -26,7 +26,7 @@ class OutlierDetector:
         save(path)
     """
 
-    def fit(self, X, contamination=0.1):
+    def fit(self, X, contamination=0.01):
         """
         Fit detector
 
