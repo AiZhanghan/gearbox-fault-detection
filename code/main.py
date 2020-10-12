@@ -157,8 +157,8 @@ def main():
     # 风场
     # wind_farms = os.listdir(feature_path)
     wind_farms = [
-        "li_niu_ping",
-        # "niu_jia_ling",
+        # "li_niu_ping",
+        "niu_jia_ling",
         # "san_tang_hu",
     ]
     # 传感器
@@ -173,6 +173,8 @@ def main():
         print("wind_farm: %s" % wind_farm)
         wind_turbines = os.listdir(os.path.join(feature_path, wind_farm))
         for wind_turbine in wind_turbines:
+            # if wind_turbine != "11":
+            #     continue
             print("wind_turbine: %s" % wind_turbine)
             # 读取数据
             feature = reader.read_feature(os.path.join(feature_path, 
