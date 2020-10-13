@@ -157,9 +157,9 @@ def main():
     # 风场
     # wind_farms = os.listdir(feature_path)
     wind_farms = [
-        "li_niu_ping",
+        # "li_niu_ping",
         # "niu_jia_ling",
-        # "san_tang_hu",
+        "san_tang_hu",
     ]
     # 传感器
     sensors = [
