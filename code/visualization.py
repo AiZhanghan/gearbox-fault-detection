@@ -24,7 +24,7 @@ def plot_line(anomaly_scores_train, label_train, anomaly_scores_test,
     
     for i in range(2):    
         # score
-        anomaly_scores[i].plot(ax=ax[i])
+        anomaly_scores[i].plot(ax=ax[i], linewidth=2, alpha=0.5)
         # title
         ax[i].set_title("%s #%s %s" % (wind_farm, wind_turbine, 
             "train" if i == 0 else "test"))
@@ -32,8 +32,8 @@ def plot_line(anomaly_scores_train, label_train, anomaly_scores_test,
         ax[i].plot(anomaly_scores[i].index, [threshold] * 
             len(anomaly_scores[i]), "r--", label="threshold")
         # label
-        ax[i].scatter(x=anomaly_scores[i].index, y=anomaly_scores[i], 
-            c=["r" if x else "b" for x in label[i].label])
+        ax[i].scatter(x=anomaly_scores[i][label[i].label].index, 
+            y=anomaly_scores[i][label[i].label], c="r")
     
     return fig, ax
 
