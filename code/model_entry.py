@@ -6,7 +6,8 @@ from sklearn.preprocessing import MinMaxScaler
 from sklearn.decomposition import PCA
 # from pyod.models.auto_encoder import AutoEncoder
 # from pyod.models.knn import KNN
-from pyod.models.ocsvm import OCSVM
+# from pyod.models.ocsvm import OCSVM
+from pyod.models.iforest import IForest
 from pyod.models.lof import LOF
 from pyod.models.combination import average
 from pyod.utils.utility import standardizer
@@ -52,7 +53,8 @@ class OutlierDetector:
             X: pd.DataFrame
         """
         self.detectors = {
-            "ocsvm": OCSVM(contamination=contamination)
+            "iForest": IForest(contamination=contamination)
+            # "ocsvm": OCSVM(contamination=contamination),
             # "lof": LOF(contamination=contamination),
             # "knn": KNN(contamination=contamination),
             # "auto_encoder": AutoEncoder(
