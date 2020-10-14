@@ -62,7 +62,7 @@ class OutlierDetector:
         # 数据预处理
         X_train = self.data_preprocess_fit_transform(X)
         # 降维
-        X_train = self.reduction_fit_transform(X_train)
+        # X_train = self.reduction_fit_transform(X_train)
         # scores thresholds初始化
         train_scores = np.zeros([X.shape[0], len(self.detectors)])
         thresholds = np.zeros([1, len(self.detectors)])
@@ -96,7 +96,7 @@ class OutlierDetector:
         # 数据预处理
         X_test = self.data_preprocess_transform(X)
         # 降维
-        X_test = self.reduction_transform(X_test)
+        # X_test = self.reduction_transform(X_test)
         test_scores = np.zeros([X_test.shape[0], len(self.detectors)])
         for i, clf_name in enumerate(self.detectors):
             test_scores[:, i] = self.detectors[clf_name].\
