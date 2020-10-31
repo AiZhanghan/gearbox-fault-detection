@@ -157,9 +157,9 @@ def main():
     # 风场
     # wind_farms = os.listdir(feature_path)
     wind_farms = [
-        # "li_niu_ping",
+        "li_niu_ping",
         # "niu_jia_ling",
-        "san_tang_hu",
+        # "san_tang_hu",
     ]
     # 传感器
     sensors = [
@@ -219,7 +219,7 @@ def run(feature_path, speed_path, result_path, wind_farm, wind_turbine,
     feature_test = pd.concat([feature_train, feature_test]).sort_index()
     # 训练
     detector = OutlierDetector()
-    detector.fit(feature_train, contamination=0.01, detector_num=1)
+    detector.fit(feature_train, contamination=0.01, detector_num=25)
     anomaly_scores_train = detector.decision_scores
     label_train = detector.label
     # 测试

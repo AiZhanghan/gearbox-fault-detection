@@ -72,8 +72,8 @@ class OutlierDetector:
         train_scores_norm, self.score_scalar = standardizer(train_scores, 
             keep_scalar=True)
 
-        self.decision_scores = pd.DataFrame(average(train_scores_norm),
-            index=X.index)
+        self.decision_scores = pd.DataFrame(aom(train_scores_norm, 
+            n_buckets=round(detector_num ** 0.5)), index=X.index)
         self.decision_scores.columns = ["score"]
         self.threshold = self.decision_scores.quantile(1 - contamination)[0]
         self.label = self.get_label(self.decision_scores)
