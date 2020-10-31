@@ -10,7 +10,7 @@ from pyod.models.knn import KNN
 from pyod.models.lof import LOF
 from pyod.models.iforest import IForest
 from pyod.models.combination import average
-from pyod.models.combination import 
+from pyod.models.combination import aom
 from pyod.utils.utility import standardizer
 
 import toolkit
