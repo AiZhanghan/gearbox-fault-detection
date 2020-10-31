@@ -42,7 +42,7 @@ class OutlierDetector:
         # score scaler
         self.score_scalar = None
 
-    def fit(self, X, contamination=0.1):
+    def fit(self, X, contamination=0.1, detector_num=25):
         """
         Fit detector
 
@@ -50,13 +50,13 @@ class OutlierDetector:
             X: pd.DataFrame
         """
         self.detectors = {}
-        for i in range(1):
+        for i in range(detector_num):
             self.detectors[i] = AutoEncoder(
                 # epochs=256,
                 validation_size=0,
                 preprocessing=False,
                 verbose=0,
-                contamination=contamination,
+                # contamination=contamination,
             )
         # 数据预处理
         X_train = self.data_preprocess_fit_transform(X)

@@ -157,7 +157,7 @@ def main():
     # 风场
     # wind_farms = os.listdir(feature_path)
     wind_farms = [
-        "li_niu_ping",
+        # "li_niu_ping",
         # "niu_jia_ling",
         "san_tang_hu",
     ]
@@ -173,55 +173,72 @@ def main():
         print("wind_farm: %s" % wind_farm)
         wind_turbines = os.listdir(os.path.join(feature_path, wind_farm))
         for wind_turbine in wind_turbines:
-            # if wind_turbine != "11":
-            #     continue
-            print("wind_turbine: %s" % wind_turbine)
-            # 读取数据
-            feature = reader.read_feature(os.path.join(feature_path, 
-                wind_farm, wind_turbine), sensors)
-            speed = reader.read_speed(os.path.join(speed_path, wind_farm,
-                wind_turbine), sensors)
-            # 只有犁牛坪需要对齐feature speed
-            if wind_farm == "li_niu_ping":
-                feature = feature.loc[speed.index]
-            toolkit.print_shape(feature=feature, speed=speed)
-            # 根据转速初步过滤异常值(极值分析), 三塘湖转速单位不同
-            SPEED_THRESHOLD = 250 if wind_farm != "san_tang_hu" else 3
-            feature = feature[speed.speed >= SPEED_THRESHOLD]
-            speed = speed[speed.speed >= SPEED_THRESHOLD]
-            # 划分训练集和测试集
-            train_start, train_end = TRAIN[wind_farm][wind_turbine]
-            feature_train = feature[train_start: train_end]
+            run(feature_path, speed_path, result_path, wind_farm, wind_turbine,
+                sensors, reader)
 
-            test_start, test_end = TEST[wind_farm][wind_turbine]
-            feature_test = feature[test_start: test_end]
 
-            toolkit.print_shape(feature_train=feature_train,
-                feature_test=feature_test)
-            
-            feature_test = pd.concat([feature_train, feature_test]).sort_index()
-            # 训练
-            detector = OutlierDetector()
-            detector.fit(feature_train, contamination=0.01)
-            anomaly_scores_train = detector.decision_scores
-            label_train = detector.label
-            # 测试
-            anomaly_scores_test = detector.decision_function(feature_test)
-            label_test = detector.predict(feature_test)
+@toolkit.timer
+def run(feature_path, speed_path, result_path, wind_farm, wind_turbine, 
+    sensors, reader):
+    """
+    Args:
+        feature_path: str
+        speed_path: str
+        result_path: str
+        wind_farm: str
+        wind_turbine: str
+        sensors: list[str]
+        reader: Reader
+    """
+    # if wind_turbine != "11":
+    #     continue
+    print("wind_turbine: %s" % wind_turbine)
+    # 读取数据
+    feature = reader.read_feature(os.path.join(feature_path, 
+        wind_farm, wind_turbine), sensors)
+    speed = reader.read_speed(os.path.join(speed_path, wind_farm,
+        wind_turbine), sensors)
+    # 只有犁牛坪需要对齐feature speed
+    if wind_farm == "li_niu_ping":
+        feature = feature.loc[speed.index]
+    toolkit.print_shape(feature=feature, speed=speed)
+    # 根据转速初步过滤异常值(极值分析), 三塘湖转速单位不同
+    SPEED_THRESHOLD = 250 if wind_farm != "san_tang_hu" else 3
+    feature = feature[speed.speed >= SPEED_THRESHOLD]
+    speed = speed[speed.speed >= SPEED_THRESHOLD]
+    # 划分训练集和测试集
+    train_start, train_end = TRAIN[wind_farm][wind_turbine]
+    feature_train = feature[train_start: train_end]
 
-            # 可视化结果
-            fig, _ = visualization.plot_line(anomaly_scores_train, label_train,
-                anomaly_scores_test, label_test, detector.threshold, wind_farm, 
-                wind_turbine)
-            
-            temp = os.path.join(result_path, wind_farm)
-            if not os.path.exists(temp):
-                os.makedirs(temp)
-            fig.savefig(os.path.join(temp, wind_turbine + ".png"))
-            # 保存报警记录
-            record = anomaly_scores_test[label_test.label]
-            if len(record) > 0:
-                record.to_csv(os.path.join(temp, wind_turbine + ".csv"))
+    test_start, test_end = TEST[wind_farm][wind_turbine]
+    feature_test = feature[test_start: test_end]
+
+    toolkit.print_shape(feature_train=feature_train,
+        feature_test=feature_test)
+    
+    feature_test = pd.concat([feature_train, feature_test]).sort_index()
+    # 训练
+    detector = OutlierDetector()
+    detector.fit(feature_train, contamination=0.01, detector_num=1)
+    anomaly_scores_train = detector.decision_scores
+    label_train = detector.label
+    # 测试
+    anomaly_scores_test = detector.decision_function(feature_test)
+    label_test = detector.predict(feature_test)
+
+    # 可视化结果
+    fig, _ = visualization.plot_line(anomaly_scores_train, label_train,
+        anomaly_scores_test, label_test, detector.threshold, wind_farm, 
+        wind_turbine)
+    
+    temp = os.path.join(result_path, wind_farm)
+    if not os.path.exists(temp):
+        os.makedirs(temp)
+    fig.savefig(os.path.join(temp, wind_turbine + ".png"))
+    # 保存报警记录
+    record = anomaly_scores_test[label_test.label]
+    if len(record) > 0:
+        record.to_csv(os.path.join(temp, wind_turbine + ".csv"))
 
 
 if __name__ == "__main__":
