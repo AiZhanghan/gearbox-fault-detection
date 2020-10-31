@@ -3,12 +3,8 @@ import pickle
 import numpy as np
 import pandas as pd
 from sklearn.preprocessing import MinMaxScaler
-from sklearn.decomposition import PCA
+# from sklearn.decomposition import PCA
 from pyod.models.auto_encoder import AutoEncoder
-from pyod.models.pca import PCA
-from pyod.models.knn import KNN
-from pyod.models.lof import LOF
-from pyod.models.iforest import IForest
 from pyod.models.combination import average
 from pyod.models.combination import aom
 from pyod.utils.utility import standardizer
@@ -53,41 +49,33 @@ class OutlierDetector:
         Args:
             X: pd.DataFrame
         """
-        self.detectors = {
-            # "pca": PCA(contamination=contamination),
-            # "knn": KNN(contamination=contamination),
-            # "lof": LOF(contamination=contamination),
-            # "iforest": IForest(contamination=contamination),
-            "auto_encoder": AutoEncoder(
+        self.detectors = {}
+        for i in range(1):
+            self.detectors[i] = AutoEncoder(
                 # epochs=256,
                 validation_size=0,
                 preprocessing=False,
                 verbose=0,
                 contamination=contamination,
-            ),
-        }
+            )
         # 数据预处理
         X_train = self.data_preprocess_fit_transform(X)
         # 降维
         # X_train = self.reduction_fit_transform(X_train)
-        # scores thresholds初始化
         train_scores = np.zeros([X.shape[0], len(self.detectors)])
-        thresholds = np.zeros([1, len(self.detectors)])
         # 训练
         for i, clf_name in enumerate(self.detectors):
             clf = self.detectors[clf_name]
             clf.fit(X_train)
             train_scores[:, i] = clf.decision_scores_
-            thresholds[:, i] = clf.threshold_
         # 训练集异常程度及阈值
         train_scores_norm, self.score_scalar = standardizer(train_scores, 
             keep_scalar=True)
-        thresholds_norm = self.score_scalar.transform(thresholds)
 
         self.decision_scores = pd.DataFrame(average(train_scores_norm),
             index=X.index)
         self.decision_scores.columns = ["score"]
-        self.threshold = average(thresholds_norm)[0]
+        self.threshold = self.decision_scores.quantile(1 - contamination)[0]
         self.label = self.get_label(self.decision_scores)
         
     def decision_function(self, X):
@@ -158,26 +146,26 @@ class OutlierDetector:
         X_test_unif = self.data_unif_scalar.transform(X_test_norm)
         return X_test_unif
 
-    def reduction_fit_transform(self, X):
-        """
-        Args:
-            X: np.array
+    # def reduction_fit_transform(self, X):
+    #     """
+    #     Args:
+    #         X: np.array
         
-        Return:
-            np.array
-        """
-        self.reducer = PCA(n_components=8)
-        return self.reducer.fit_transform(X)
+    #     Return:
+    #         np.array
+    #     """
+    #     self.reducer = PCA(n_components=8)
+    #     return self.reducer.fit_transform(X)
 
-    def reduction_transform(self, X):
-        """
-        Args:
-            X: np.array
+    # def reduction_transform(self, X):
+    #     """
+    #     Args:
+    #         X: np.array
         
-        Return:
-            np.array
-        """
-        return self.reducer.transform(X)
+    #     Return:
+    #         np.array
+    #     """
+    #     return self.reducer.transform(X)
     
     def get_label(self, anomaly_scores):
         """
