@@ -46,7 +46,7 @@ class OutlierDetector:
         # score scaler
         self.score_scalar = None
 
-    def fit(self, X, contamination=0.01):
+    def fit(self, X, contamination=0.1):
         """
         Fit detector
 
