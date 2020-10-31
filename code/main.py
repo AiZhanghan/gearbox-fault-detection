@@ -157,9 +157,9 @@ def main():
     # 风场
     # wind_farms = os.listdir(feature_path)
     wind_farms = [
-        "li_niu_ping",
+        # "li_niu_ping",
         # "niu_jia_ling",
-        # "san_tang_hu",
+        "san_tang_hu",
     ]
     # 传感器
     sensors = [
@@ -167,6 +167,9 @@ def main():
         "low_speed_shaft",
         "high_speed_shaft",
     ]
+    contamination = 0.01
+    detector_num = 1
+
     reader = Reader()
     for wind_farm in wind_farms:
         # 风机
@@ -174,12 +177,12 @@ def main():
         wind_turbines = os.listdir(os.path.join(feature_path, wind_farm))
         for wind_turbine in wind_turbines:
             run(feature_path, speed_path, result_path, wind_farm, wind_turbine,
-                sensors, reader)
+                sensors, reader, contamination, detector_num)
 
 
 @toolkit.timer
 def run(feature_path, speed_path, result_path, wind_farm, wind_turbine, 
-    sensors, reader):
+    sensors, reader, contamination, detector_num):
     """
     Args:
         feature_path: str
@@ -189,6 +192,8 @@ def run(feature_path, speed_path, result_path, wind_farm, wind_turbine,
         wind_turbine: str
         sensors: list[str]
         reader: Reader
+        contamination: float
+        detector_num: int
     """
     # if wind_turbine != "11":
     #     continue
@@ -219,7 +224,9 @@ def run(feature_path, speed_path, result_path, wind_farm, wind_turbine,
     feature_test = pd.concat([feature_train, feature_test]).sort_index()
     # 训练
     detector = OutlierDetector()
-    detector.fit(feature_train, contamination=0.01, detector_num=25)
+    detector.fit(feature_train, contamination=contamination, 
+        detector_num=detector_num)
+    
     anomaly_scores_train = detector.decision_scores
     label_train = detector.label
     # 测试

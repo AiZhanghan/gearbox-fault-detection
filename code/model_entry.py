@@ -42,7 +42,7 @@ class OutlierDetector:
         # score scaler
         self.score_scalar = None
 
-    def fit(self, X, contamination=0.1, detector_num=25):
+    def fit(self, X, contamination=0.1, detector_num=4):
         """
         Fit detector
 
@@ -71,9 +71,13 @@ class OutlierDetector:
         # 训练集异常程度及阈值
         train_scores_norm, self.score_scalar = standardizer(train_scores, 
             keep_scalar=True)
-
-        self.decision_scores = pd.DataFrame(aom(train_scores_norm, 
-            n_buckets=round(detector_num ** 0.5)), index=X.index)
+        
+        if detector_num == 1:
+            self.decision_scores = pd.DataFrame(average(train_scores_norm),
+                index=X.index)
+        else:
+            self.decision_scores = pd.DataFrame(aom(train_scores_norm, 
+                n_buckets=round(detector_num ** 0.5)), index=X.index)
         self.decision_scores.columns = ["score"]
         self.threshold = self.decision_scores.quantile(1 - contamination)[0]
         self.label = self.get_label(self.decision_scores)
