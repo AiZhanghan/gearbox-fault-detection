@@ -4,9 +4,13 @@ import numpy as np
 import pandas as pd
 from sklearn.preprocessing import MinMaxScaler
 from sklearn.decomposition import PCA
-# from pyod.models.auto_encoder import AutoEncoder
+from pyod.models.auto_encoder import AutoEncoder
 from pyod.models.pca import PCA
+from pyod.models.knn import KNN
+from pyod.models.lof import LOF
+from pyod.models.iforest import IForest
 from pyod.models.combination import average
+from pyod.models.combination import 
 from pyod.utils.utility import standardizer
 
 import toolkit
@@ -50,14 +54,17 @@ class OutlierDetector:
             X: pd.DataFrame
         """
         self.detectors = {
-            "pca": PCA(contamination=contamination)
-            # "auto_encoder": AutoEncoder(
-            #     epochs=256,
-            #     validation_size=0,
-            #     preprocessing=False,
-            #     verbose=0,
-            #     contamination=contamination,
-            # ),
+            # "pca": PCA(contamination=contamination),
+            # "knn": KNN(contamination=contamination),
+            # "lof": LOF(contamination=contamination),
+            # "iforest": IForest(contamination=contamination),
+            "auto_encoder": AutoEncoder(
+                # epochs=256,
+                validation_size=0,
+                preprocessing=False,
+                verbose=0,
+                contamination=contamination,
+            ),
         }
         # 数据预处理
         X_train = self.data_preprocess_fit_transform(X)
