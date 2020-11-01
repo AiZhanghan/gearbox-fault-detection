@@ -168,7 +168,8 @@ def main():
         "high_speed_shaft",
     ]
     contamination = 0.01
-    detector_num = 1
+    n_estimators = 8
+    max_features = 0.8
 
     reader = Reader()
     for wind_farm in wind_farms:
@@ -177,12 +178,12 @@ def main():
         wind_turbines = os.listdir(os.path.join(feature_path, wind_farm))
         for wind_turbine in wind_turbines:
             run(feature_path, speed_path, result_path, wind_farm, wind_turbine,
-                sensors, reader, contamination, detector_num)
+                sensors, reader, contamination, n_estimators, max_features)
 
 
 @toolkit.timer
 def run(feature_path, speed_path, result_path, wind_farm, wind_turbine, 
-    sensors, reader, contamination, detector_num):
+    sensors, reader, contamination, n_estimators, max_features):
     """
     Args:
         feature_path: str
@@ -224,8 +225,7 @@ def run(feature_path, speed_path, result_path, wind_farm, wind_turbine,
     feature_test = pd.concat([feature_train, feature_test]).sort_index()
     # 训练
     detector = OutlierDetector()
-    detector.fit(feature_train, contamination=contamination, 
-        detector_num=detector_num)
+    detector.fit(feature_train, contamination, n_estimators, max_features)
     
     anomaly_scores_train = detector.decision_scores
     label_train = detector.label
