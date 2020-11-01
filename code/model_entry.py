@@ -5,6 +5,7 @@ import pandas as pd
 from sklearn.preprocessing import MinMaxScaler
 # from sklearn.decomposition import PCA
 from pyod.models.auto_encoder import AutoEncoder
+from pyod.models.feature_bagging import FeatureBagging
 from pyod.models.combination import average
 from pyod.models.combination import aom
 from pyod.utils.utility import standardizer
