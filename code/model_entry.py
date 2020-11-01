@@ -51,11 +51,11 @@ class OutlierDetector:
             X: pd.DataFrame
         """
         self.detectors = {
-            "feature bagging": FeatureBagging(base_estimator=AutoEncoder, 
-            n_estimators=n_estimators, contamination=contamination, 
-            max_features=max_features, n_jobs=-1, combination="average", 
-            estimator_params={"validation_size": 0, "preprocessing": False, 
-            "verbose": 0})
+            "feature bagging": FeatureBagging(base_estimator=AutoEncoder(
+                validation_size=0, preprocessing=False, verbose=0,), 
+                n_estimators=n_estimators, contamination=contamination, 
+                max_features=max_features, n_jobs=-1, combination="average", 
+            ),
             }
         # 数据预处理
         X_train = self.data_preprocess_fit_transform(X)
