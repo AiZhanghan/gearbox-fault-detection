@@ -7,7 +7,7 @@ from sklearn.preprocessing import MinMaxScaler
 from pyod.models.auto_encoder import AutoEncoder
 from pyod.models.feature_bagging import FeatureBagging
 from pyod.models.combination import average
-from pyod.models.combination import aom
+# from pyod.models.combination import aom
 from pyod.utils.utility import standardizer
 
 import toolkit
@@ -43,26 +43,23 @@ class OutlierDetector:
         # score scaler
         self.score_scalar = None
 
-    def fit(self, X, contamination=0.1, detector_num=4):
+    def fit(self, X, contamination=0.01, n_estimators=8, max_features=0.8):
         """
         Fit detector
 
         Args:
             X: pd.DataFrame
         """
-        self.detectors = {}
-        for i in range(detector_num):
-            self.detectors[i] = AutoEncoder(
-                # epochs=256,
-                validation_size=0,
-                preprocessing=False,
+        self.detectors = {
+            "auto encoder": AutoEncoder(
+                validation_size=0, 
+                preprocessing=False, 
                 verbose=0,
-                # contamination=contamination,
-            )
+                ), 
+            }
         # 数据预处理
         X_train = self.data_preprocess_fit_transform(X)
-        # 降维
-        # X_train = self.reduction_fit_transform(X_train)
+        
         train_scores = np.zeros([X.shape[0], len(self.detectors)])
         # 训练
         for i, clf_name in enumerate(self.detectors):
@@ -73,12 +70,9 @@ class OutlierDetector:
         train_scores_norm, self.score_scalar = standardizer(train_scores, 
             keep_scalar=True)
         
-        if detector_num == 1:
-            self.decision_scores = pd.DataFrame(average(train_scores_norm),
-                index=X.index)
-        else:
-            self.decision_scores = pd.DataFrame(aom(train_scores_norm, 
-                n_buckets=round(detector_num ** 0.5)), index=X.index)
+        self.decision_scores = pd.DataFrame(average(train_scores_norm),
+            index=X.index)
+
         self.decision_scores.columns = ["score"]
         self.threshold = self.decision_scores.quantile(1 - contamination)[0]
         self.label = self.get_label(self.decision_scores)
