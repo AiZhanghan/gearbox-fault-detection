@@ -55,6 +55,7 @@ class OutlierDetector:
                 validation_size=0, 
                 preprocessing=False, 
                 verbose=0,
+                # epochs=512,
                 ), 
             }
         # 数据预处理

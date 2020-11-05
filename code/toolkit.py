@@ -67,4 +67,4 @@ def precision_recall_f1(TP, FP, FN):
 
 
 if __name__ == "__main__":
-    precision_recall_f1(TP=7, FP=4, FN=2)
+    precision_recall_f1(TP=8, FP=2, FN=1)
