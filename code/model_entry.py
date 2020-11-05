@@ -4,8 +4,8 @@ import numpy as np
 import pandas as pd
 from sklearn.preprocessing import MinMaxScaler
 # from sklearn.decomposition import PCA
-from pyod.models.auto_encoder import AutoEncoder
-from pyod.models.feature_bagging import FeatureBagging
+# from pyod.models.auto_encoder import AutoEncoder
+# from pyod.models.feature_bagging import FeatureBagging
 from pyod.models.combination import average
 # from pyod.models.combination import aom
 from pyod.utils.utility import standardizer
@@ -43,30 +43,30 @@ class OutlierDetector:
         # score scaler
         self.score_scalar = None
 
-    def fit(self, X, contamination=0.01, n_estimators=8, max_features=0.8):
+    def fit(self, X, contamination=0.01):
         """
         Fit detector
 
         Args:
             X: pd.DataFrame
         """
-        self.detectors = {
-            "auto encoder": AutoEncoder(
-                validation_size=0, 
-                preprocessing=False, 
-                verbose=0,
-                # epochs=512,
-                ), 
-            }
+        # self.detectors = {
+        #     "auto encoder": AutoEncoder(
+        #         validation_size=0, 
+        #         preprocessing=False, 
+        #         verbose=0,
+        #         # epochs=512,
+        #         ), 
+        #     }
         # 数据预处理
         X_train = self.data_preprocess_fit_transform(X)
         
-        train_scores = np.zeros([X.shape[0], len(self.detectors)])
+        train_scores = np.zeros([X.shape[0], 1])
         # 训练
-        for i, clf_name in enumerate(self.detectors):
-            clf = self.detectors[clf_name]
-            clf.fit(X_train)
-            train_scores[:, i] = clf.decision_scores_
+        # for i, clf_name in enumerate(self.detectors):
+        #     # clf = self.detectors[clf_name]
+        #     # clf.fit(X_train)
+        train_scores[:, 0] = X_train[:, 3]
         # 训练集异常程度及阈值
         train_scores_norm, self.score_scalar = standardizer(train_scores, 
             keep_scalar=True)
@@ -92,10 +92,9 @@ class OutlierDetector:
         X_test = self.data_preprocess_transform(X)
         # 降维
         # X_test = self.reduction_transform(X_test)
-        test_scores = np.zeros([X_test.shape[0], len(self.detectors)])
-        for i, clf_name in enumerate(self.detectors):
-            test_scores[:, i] = self.detectors[clf_name].\
-                decision_function(X_test)
+        test_scores = np.zeros([X_test.shape[0], 1])
+        # for i, clf_name in enumerate(self.detectors):
+        test_scores[:, 0] = X_test[:, 3]
         
         test_scores_norm = self.score_scalar.transform(test_scores)
         anomaly_scores = pd.DataFrame(average(test_scores_norm), 

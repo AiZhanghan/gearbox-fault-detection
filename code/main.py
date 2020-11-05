@@ -224,8 +224,7 @@ def run(feature_path, speed_path, result_path, wind_farm, wind_turbine,
     feature_test = pd.concat([feature_train, feature_test]).sort_index()
     # 训练
     detector = OutlierDetector()
-    detector.fit(feature_train, contamination=contamination, 
-        detector_num=detector_num)
+    detector.fit(feature_train, contamination=contamination)
     
     anomaly_scores_train = detector.decision_scores
     label_train = detector.label
