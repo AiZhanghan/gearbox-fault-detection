@@ -43,7 +43,7 @@ class OutlierDetector:
         # score scaler
         self.score_scalar = None
 
-    def fit(self, X, contamination=0.01, n_estimators=8, max_features=0.8):
+    def fit(self, X, contamination=0.01):
         """
         Fit detector
 
@@ -55,7 +55,10 @@ class OutlierDetector:
                 validation_size=0, 
                 preprocessing=False, 
                 verbose=0,
-                # epochs=512,
+                # dropout_rate=0,
+                # l2_regularizer=0.01,
+                epochs=512,
+                # hidden_neurons=[1],
                 ), 
             }
         # 数据预处理
